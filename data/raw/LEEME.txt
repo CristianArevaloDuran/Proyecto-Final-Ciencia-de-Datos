@@ -1,0 +1,14 @@
+Datos: flights.parquet (299 MB)
+===============================
+
+El archivo no se versiona en Git porque supera el límite de 100 MB por archivo.
+Descárguelo del release del repositorio y colóquelo en esta misma carpeta:
+
+https://github.com/CristianArevaloDuran/Proyecto-Final-Ciencia-de-Datos/releases/latest/download/flights.parquet
+
+PowerShell:
+
+    Invoke-WebRequest -Uri "https://github.com/CristianArevaloDuran/Proyecto-Final-Ciencia-de-Datos/releases/latest/download/flights.parquet" -OutFile "flights.parquet"
+
+Los demás archivos de data/raw (airports.csv, airlines.csv y daily_airport_stats.csv)
+sí vienen incluidos en el repositorio.
