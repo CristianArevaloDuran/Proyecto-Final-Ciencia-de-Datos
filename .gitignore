@@ -1,0 +1,3 @@
+# Sólo cachés de Python: los datos y el cuadernillo sí se versionan.
+__pycache__/
+*.pyc
