@@ -18,6 +18,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 RAW = RAIZ / "data" / "raw"
 FIG = RAIZ / "reports" / "figures"
 TAB = RAIZ / "reports" / "tables"
+PROCESADOS = RAIZ / "data" / "processed"
 
 SEMILLA = 42
 
