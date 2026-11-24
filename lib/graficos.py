@@ -1,8 +1,4 @@
-"""Gráficos del análisis exploratorio.
-
-Cada función recibe los datos ya agregados en el cuadernillo, construye la
-figura, la guarda en ``reports/figures`` y la devuelve para mostrarla.
-"""
+"""Un gráfico por función. Guarda la figura y la devuelve."""
 
 from __future__ import annotations
 
@@ -17,7 +13,7 @@ from config import (
 
 
 def distribuciones(df: pd.DataFrame):
-    """Histogramas de las variables continuas con media y mediana."""
+    """Histogramas."""
     fig, ax = plt.subplots(2, 3, figsize=(15, 7.5))
     configuracion = [
         ("dep_delay", (-60, 180), AZUL), ("arr_delay", (-60, 180), NARANJA),
@@ -41,7 +37,7 @@ def distribuciones(df: pd.DataFrame):
 
 
 def categoricas(df: pd.DataFrame):
-    """Volumen por aerolínea, aeropuerto, mes y día de la semana."""
+    """Volumen por aerolínea y calendario."""
     fig, ax = plt.subplots(2, 2, figsize=(14.5, 8.5))
 
     conteo = df["airline"].value_counts().sort_values()
@@ -72,7 +68,7 @@ def categoricas(df: pd.DataFrame):
 
 
 def aerolineas(aer: pd.DataFrame, media: float, tasa_global: float):
-    """Retraso medio y tasa de llegada tardía por aerolínea."""
+    """Retraso y tasa por aerolínea."""
     fig, ax = plt.subplots(1, 2, figsize=(14, 5.5))
 
     orden = aer.sort_values("retraso")
@@ -94,7 +90,7 @@ def aerolineas(aer: pd.DataFrame, media: float, tasa_global: float):
 
 
 def aeropuertos(grandes: pd.DataFrame, extremos: pd.DataFrame, media: float):
-    """Mejores y peores aeropuertos y relación volumen-tasa."""
+    """Mejores y peores aeropuertos."""
     fig, ax = plt.subplots(1, 2, figsize=(14.5, 5.5))
 
     ax[0].barh(extremos.index, extremos["retraso"],
@@ -121,7 +117,7 @@ def aeropuertos(grandes: pd.DataFrame, extremos: pd.DataFrame, media: float):
 
 
 def horario(por_hora: pd.DataFrame, por_dia: pd.DataFrame):
-    """Perfil horario y semanal del retraso."""
+    """Retraso por hora y por día."""
     fig, ax = plt.subplots(2, 2, figsize=(14, 8.5))
 
     ax[0, 0].plot(por_hora.index, por_hora["media"], "o-", color=AZUL, label="media")
@@ -156,7 +152,7 @@ def horario(por_hora: pd.DataFrame, por_dia: pd.DataFrame):
 
 def temporal(dia: pd.DataFrame, mes_hora: pd.DataFrame, conteo_mes_hora: pd.DataFrame,
              media: float):
-    """Serie diaria, cancelaciones y mapa de calor mes × hora."""
+    """Serie diaria y mapa mes x hora."""
     fig, ax = plt.subplots(2, 2, figsize=(15, 8))
 
     ax[0, 0].plot(dia.index, dia["media"], color="#c9d6e6", lw=.8)
@@ -192,7 +188,7 @@ def temporal(dia: pd.DataFrame, mes_hora: pd.DataFrame, conteo_mes_hora: pd.Data
 
 
 def rutas(muestra: pd.DataFrame, df: pd.DataFrame):
-    """Distancia frente a duración y retraso por tramo de distancia."""
+    """Distancia, duración y tramos."""
     fig, ax = plt.subplots(1, 2, figsize=(14, 5))
 
     hexbin = ax[0].hexbin(muestra["distance"], muestra["air_time"],
@@ -218,7 +214,7 @@ def rutas(muestra: pd.DataFrame, df: pd.DataFrame):
 
 
 def causas(parte: pd.Series, reparto: pd.DataFrame):
-    """Peso de cada causa y reparto por aerolínea."""
+    """Causas del retraso."""
     fig, ax = plt.subplots(1, 2, figsize=(14.5, 5))
 
     orden = parte.sort_values()
@@ -241,7 +237,7 @@ def causas(parte: pd.Series, reparto: pd.DataFrame):
 
 
 def correlaciones(muestra: pd.DataFrame, variables: list[str]):
-    """Matriz de Spearman y dispersión salida-llegada."""
+    """Correlaciones."""
     spearman = muestra[variables].astype("float64").corr(method="spearman")
 
     fig, ax = plt.subplots(1, 2, figsize=(15, 5.8))
@@ -270,7 +266,7 @@ def correlaciones(muestra: pd.DataFrame, variables: list[str]):
 
 
 def atipicos(df: pd.DataFrame, umbrales: pd.DataFrame):
-    """Cajas por mes y conteo de vuelos que superan cada umbral."""
+    """Cajas y umbrales extremos."""
     fig, ax = plt.subplots(1, 2, figsize=(14, 4.5))
 
     datos = [df.loc[df.month == mes, "dep_delay"].dropna().astype("float64") for mes in range(1, 13)]
@@ -290,7 +286,7 @@ def atipicos(df: pd.DataFrame, umbrales: pd.DataFrame):
 
 
 def tablero(por_dimension: pd.DataFrame, registro: pd.DataFrame):
-    """Cumplimiento por dimensión y registros afectados por prueba."""
+    """Tablero de calidad."""
     fig, ax = plt.subplots(1, 2, figsize=(14.5, 4.8))
 
     ax[0].barh(por_dimension.index, por_dimension["cumple_%"],

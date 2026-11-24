@@ -1,9 +1,4 @@
-"""Carga de las fuentes del proyecto.
-
-La tabla de hechos tiene 11,7 M de filas y 40 columnas; leerla completa consume
-varios GB. Aquí se proyectan sólo las columnas necesarias y se construye una
-muestra estratificada por mes para los gráficos de nivel de fila.
-"""
+"""Carga de los datos y muestreo."""
 
 from __future__ import annotations
 
@@ -25,7 +20,7 @@ FRACCION_MUESTRA = 1 / 15
 
 
 def inventario_fuentes(carpeta=RAW) -> pd.DataFrame:
-    """Archivo, filas, columnas y tamaño de cada fuente de ``data/raw``."""
+    """Filas y columnas de cada archivo de data/raw."""
     filas = []
     for archivo in sorted(carpeta.iterdir()):
         if archivo.suffix == ".parquet":
@@ -44,7 +39,7 @@ def inventario_fuentes(carpeta=RAW) -> pd.DataFrame:
 
 
 def cargar_vuelos(fraccion: float = FRACCION_MUESTRA, semilla: int = SEMILLA):
-    """Devuelve ``(df, muestra)``: tabla completa proyectada y muestra por mes."""
+    """Devuelve la tabla completa y una muestra por mes."""
     df = pq.read_table(RAW / "flights.parquet", columns=COLS).to_pandas()
     df["fecha"] = pd.to_datetime(df["flight_date"])
     df["hora"] = (df["sched_dep_time"] // 100).clip(0, 23).astype("int8")

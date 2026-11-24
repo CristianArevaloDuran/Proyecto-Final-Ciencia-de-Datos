@@ -1,9 +1,4 @@
-"""Ingeniería de variables para el modelo de retraso.
-
-Concentra la preparación que comparten la competencia de modelos y el conjunto
-final: filtrado, variables derivadas (hora, congestión, rotación) y codificación
-(one-hot, cíclica y *target encoding*).
-"""
+"""Preparar los datos: derivadas y codificación."""
 
 from __future__ import annotations
 
@@ -20,7 +15,7 @@ CICLICAS = [("hora", 24), ("month", 12), ("day_of_week", 7)]
 
 
 def preparar_base(df: pd.DataFrame, top_hubs: int = 20) -> pd.DataFrame:
-    """Filtra vuelos con etiqueta y crea las variables derivadas."""
+    """Filtra vuelos con etiqueta y crea las derivadas."""
     d = df[df["arr_del15"].notna()].copy()
 
     d["tramo_hora"] = pd.cut(d["hora"], CORTES, labels=TRAMOS)
@@ -39,12 +34,12 @@ def preparar_base(df: pd.DataFrame, top_hubs: int = 20) -> pd.DataFrame:
 
 
 def dividir_temporal(d: pd.DataFrame, corte: str = "2026-01-01"):
-    """Entrena con lo anterior al corte y evalúa con lo posterior."""
+    """Corta por fecha."""
     return d[d["fecha"] < corte], d[d["fecha"] >= corte]
 
 
 def codificar_ordinal(d: pd.DataFrame) -> pd.DataFrame:
-    """Códigos enteros para la comparación rápida de modelos."""
+    """Códigos enteros para comparar modelos rápido."""
     salida = d[["arr_del15", "fecha"] + NUMERICAS + CATEGORICAS].copy()
     for col in CATEGORICAS:
         salida[col] = salida[col].astype("category").cat.codes
@@ -54,11 +49,7 @@ def codificar_ordinal(d: pd.DataFrame) -> pd.DataFrame:
 def target_encoding(train: pd.DataFrame, test: pd.DataFrame, col: str,
                     target: str = "arr_del15", suavizado: float = 20,
                     folds: int = 5, semilla: int = 42):
-    """Codifica una categórica con la tasa media del objetivo (sin fuga).
-
-    El entrenamiento usa codificación fuera de fold; el test usa el mapa
-    completo del entrenamiento.
-    """
+    """Target encoding con suavizado (sin fuga)."""
     media = train[target].mean()
     train_enc = pd.Series(index=train.index, dtype="float64")
 
@@ -76,15 +67,15 @@ def target_encoding(train: pd.DataFrame, test: pd.DataFrame, col: str,
 
 def construir_matrices(train: pd.DataFrame, test: pd.DataFrame,
                        target: str = "arr_del15"):
-    """Devuelve X_train, X_test, y_train, y_test con todas las codificaciones."""
-    # One-hot de baja cardinalidad
+    """Devuelve X e y ya codificados."""
+    # one-hot
     juntos = pd.concat([train[["airline", "tramo_hora", "es_hub"]],
                         test[["airline", "tramo_hora", "es_hub"]]])
     dummies = pd.get_dummies(juntos, columns=["airline", "tramo_hora"],
                              drop_first=True, dtype="int8")
     oh_train, oh_test = dummies.iloc[:len(train)], dummies.iloc[len(train):]
 
-    # Cíclicas
+    # seno y coseno
     def ciclo(d):
         salida = pd.DataFrame(index=d.index)
         for col, periodo in CICLICAS:
@@ -92,7 +83,7 @@ def construir_matrices(train: pd.DataFrame, test: pd.DataFrame,
             salida[f"{col}_cos"] = np.cos(2 * np.pi * d[col] / periodo)
         return salida
 
-    # Target encoding de alta cardinalidad
+    # target encoding
     te_tr = pd.DataFrame(index=train.index)
     te_te = pd.DataFrame(index=test.index)
     for col in ["origin", "dest"]:

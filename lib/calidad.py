@@ -1,4 +1,4 @@
-"""Pruebas de calidad de datos: registro, conteo y conversión de horas."""
+"""Pruebas de calidad: registro y utilidades."""
 
 from __future__ import annotations
 
@@ -6,25 +6,18 @@ import pandas as pd
 
 
 def cnt(mascara) -> int:
-    """Cuenta los True de una máscara tratando NA como False."""
+    """Cuenta True sin contar NA."""
     return int(pd.Series(mascara).fillna(False).sum())
 
 
 def minutos_hhmm(serie: pd.Series) -> pd.Series:
-    """Convierte una hora HHMM (entero) a minutos desde la medianoche."""
+    """Pasa HHMM a minutos."""
     valores = serie.astype("Float64")
     return (valores // 100) * 60 + valores % 100
 
 
 class RegistroCalidad:
-    """Acumula pruebas con regla, umbral, estado y acción asociada.
-
-    Ejemplo
-    -------
-    >>> reg = RegistroCalidad()
-    >>> reg.check("C1", "Completitud", "etiqueta ausente", 1, 100, 0.001, "Crítica")
-    >>> reg.tabla
-    """
+    """Guarda las pruebas de calidad en una tabla."""
 
     COLUMNAS = ["codigo", "dimension", "prueba", "afectados", "tasa_%",
                 "umbral_%", "estado", "severidad", "accion"]
@@ -34,7 +27,7 @@ class RegistroCalidad:
 
     def check(self, cod: str, dim: str, prueba: str, malos: int, total: int,
               umbral: float = 0.0, sev: str = "Alta", accion: str = "—") -> "RegistroCalidad":
-        """Registra una prueba; el estado es OK si la tasa no supera el umbral."""
+        """Añade una prueba."""
         tasa = 100 * malos / total if total else 0.0
         self.filas.append({
             "codigo": cod, "dimension": dim, "prueba": prueba,
@@ -46,11 +39,11 @@ class RegistroCalidad:
 
     @property
     def tabla(self) -> pd.DataFrame:
-        """Registro completo como DataFrame."""
+        """Tabla con todas las pruebas."""
         return pd.DataFrame(self.filas, columns=self.COLUMNAS)
 
     def resumen(self) -> pd.DataFrame:
-        """Pruebas, aprobadas y porcentaje de cumplimiento por dimensión."""
+        """Resumen por dimensión."""
         tabla = self.tabla
         resumen = tabla.groupby("dimension").agg(
             pruebas=("codigo", "size"),

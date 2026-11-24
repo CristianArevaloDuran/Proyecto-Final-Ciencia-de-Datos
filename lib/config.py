@@ -1,8 +1,4 @@
-"""Configuración del proyecto: rutas, constantes de dominio y estilo de los gráficos.
-
-Todos los módulos de ``lib`` importan desde aquí, de modo que una sola definición
-gobierna rutas, colores y semilla.
-"""
+"""Rutas, colores y constantes del proyecto."""
 
 from __future__ import annotations
 
@@ -11,9 +7,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 from matplotlib.ticker import FuncFormatter
 
-# --------------------------------------------------------------------------- #
-# Rutas (calculadas desde la ubicación de este archivo, no desde el cwd)
-# --------------------------------------------------------------------------- #
+# rutas
 RAIZ = Path(__file__).resolve().parents[1]
 RAW = RAIZ / "data" / "raw"
 FIG = RAIZ / "reports" / "figures"
@@ -22,30 +16,24 @@ PROCESADOS = RAIZ / "data" / "processed"
 
 SEMILLA = 42
 
-# --------------------------------------------------------------------------- #
-# Paleta
-# --------------------------------------------------------------------------- #
+# colores
 AZUL, NARANJA, ROJO = "#1f4e79", "#ed7d31", "#c00000"
 VERDE, GRIS, CELESTE = "#548235", "#7f7f7f", "#2e75b6"
 MOSTAZA, MORADO = "#bf9000", "#7030a0"
 
-# --------------------------------------------------------------------------- #
-# Constantes de dominio
-# --------------------------------------------------------------------------- #
+# constantes
 CAUSAS = ["carrier_delay", "weather_delay", "nas_delay", "security_delay", "late_aircraft_delay"]
 NOMBRES_CAUSA = ["Aerolínea", "Clima", "Sistema aéreo", "Seguridad", "Aeronave previa"]
 COLOR_CAUSA = dict(zip(CAUSAS, [AZUL, NARANJA, CELESTE, GRIS, VERDE]))
 
 DIAS = ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"]
 
-# --------------------------------------------------------------------------- #
-# Estilo y utilidades
-# --------------------------------------------------------------------------- #
+# estilo
 fmt_miles = FuncFormatter(lambda valor, _: f"{valor:,.0f}".replace(",", "."))
 
 
 def aplicar_estilo() -> None:
-    """Fija el estilo común de todas las figuras."""
+    """Estilo de los gráficos."""
     plt.rcParams.update({
         "figure.dpi": 110, "savefig.dpi": 150,
         "axes.titlesize": 11, "axes.titleweight": "bold",
@@ -56,7 +44,7 @@ def aplicar_estilo() -> None:
 
 
 def guardar(fig, nombre: str) -> Path:
-    """Guarda la figura en ``reports/figures`` y devuelve su ruta."""
+    """Guarda la figura."""
     FIG.mkdir(parents=True, exist_ok=True)
     fig.tight_layout()
     ruta = FIG / nombre
