@@ -89,62 +89,31 @@ def aerolineas(aer: pd.DataFrame, media: float, tasa_global: float):
     return fig
 
 
-def aeropuertos(grandes: pd.DataFrame, extremos: pd.DataFrame, media: float):
+def aeropuertos(extremos: pd.DataFrame, media: float):
     """Mejores y peores aeropuertos."""
-    fig, ax = plt.subplots(1, 2, figsize=(14.5, 5.5))
-
-    ax[0].barh(extremos.index, extremos["retraso"],
-               color=[ROJO if v > media else VERDE for v in extremos["retraso"]])
-    ax[0].axvline(media, color=AZUL, ls="--")
-    ax[0].set_title("Mejores y peores aeropuertos (≥ 20k salidas)")
-    ax[0].set_xlabel("retraso medio (min)")
-
-    dispersion = ax[1].scatter(grandes["vuelos"], grandes["tarde"],
-                               s=grandes["cancela"] * 20 + 15,
-                               c=grandes["retraso"], cmap="YlOrRd",
-                               edgecolor="white", linewidth=.5)
-    ax[1].set_xscale("log")
-    ax[1].set_title("Volumen frente a tasa de retraso")
-    ax[1].set_xlabel("salidas (log)")
-    ax[1].set_ylabel("% llegadas tardías")
-    for codigo in ["DFW", "ORD", "LIH", "DEN"]:
-        ax[1].annotate(codigo, (grandes.loc[codigo, "vuelos"], grandes.loc[codigo, "tarde"]),
-                       fontsize=8, xytext=(4, 4), textcoords="offset points")
-    plt.colorbar(dispersion, ax=ax[1], label="retraso medio")
-
+    fig, eje = plt.subplots(figsize=(9, 5.5))
+    eje.barh(extremos.index, extremos["retraso"],
+             color=[ROJO if v > media else VERDE for v in extremos["retraso"]])
+    eje.axvline(media, color=AZUL, ls="--", label=f"media {media:.1f} min")
+    eje.set_title("Mejores y peores aeropuertos (≥ 20k salidas)")
+    eje.set_xlabel("retraso medio (min)")
+    eje.legend(fontsize=8)
     guardar(fig, "04_aeropuertos.png")
     return fig
 
 
-def horario(por_hora: pd.DataFrame, por_dia: pd.DataFrame):
-    """Retraso por hora y por día."""
-    fig, ax = plt.subplots(2, 2, figsize=(14, 8.5))
+def horario(por_dia: pd.DataFrame):
+    """Retraso y tasa por día de la semana."""
+    fig, ax = plt.subplots(1, 2, figsize=(13, 4.5))
 
-    ax[0, 0].plot(por_hora.index, por_hora["media"], "o-", color=AZUL, label="media")
-    ax[0, 0].plot(por_hora.index, por_hora["mediana"], "s-", color=NARANJA, label="mediana")
-    ax[0, 0].axhline(0, color=GRIS, lw=1)
-    ax[0, 0].legend(fontsize=8)
-    ax[0, 0].set_title("Retraso por hora programada")
-    ax[0, 0].set_xlabel("hora local")
-    ax[0, 0].set_ylabel("min")
+    ax[0].bar(DIAS, por_dia["media"],
+              color=[NARANJA if i > 4 else AZUL for i in range(7)])
+    ax[0].set_title("Retraso medio por día")
+    ax[0].set_ylabel("min")
 
-    ax[0, 1].bar(por_hora.index, por_hora["vuelos"], color="#d9e2f3", width=.8)
-    gemelo = ax[0, 1].twinx()
-    gemelo.plot(por_hora.index, por_hora["tarde"], "o-", color=ROJO)
-    gemelo.grid(False)
-    gemelo.set_ylabel("% con retraso", color=ROJO)
-    ax[0, 1].set_xlabel("hora local")
-    ax[0, 1].set_yticks([])
-    ax[0, 1].set_title("Tasa de retraso por hora")
-
-    ax[1, 0].bar(DIAS, por_dia["media"],
-                 color=[NARANJA if i > 4 else AZUL for i in range(7)])
-    ax[1, 0].set_title("Retraso medio por día")
-    ax[1, 0].set_ylabel("min")
-
-    ax[1, 1].bar(DIAS, por_dia["tarde"], color=VERDE)
-    ax[1, 1].set_title("Tasa de retraso por día")
-    ax[1, 1].set_ylabel("%")
+    ax[1].bar(DIAS, por_dia["tarde"], color=VERDE)
+    ax[1].set_title("Tasa de retraso por día")
+    ax[1].set_ylabel("%")
 
     guardar(fig, "05_horario.png")
     return fig
